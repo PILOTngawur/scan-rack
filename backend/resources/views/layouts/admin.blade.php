@@ -52,7 +52,7 @@
                 KELOLA USER
             </a>
             
-            <a href="#"
+            <a href="{{ route('admin.catat.index') }}"
                class="{{ $baseLinkClass }} {{ request()->routeIs('admin.catat.*') ? $activeClass : '' }}">
                 CATAT
             </a>
