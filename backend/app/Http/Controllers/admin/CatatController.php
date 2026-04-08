@@ -6,12 +6,15 @@ use App\Http\Controllers\Controller;
 use App\Models\ClassModel;
 use App\Models\DetailClass;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 
 class CatatController extends Controller
 {
     public function index(Request $request)
     {
-        $selectedDate = $request->input('date', now()->toDateString());
+        $selectedDate = $request->input('date', now('Asia/Jakarta')->toDateString());
+        $startUtc = Carbon::createFromFormat('Y-m-d', $selectedDate, 'Asia/Jakarta')->startOfDay()->utc();
+        $endUtc = Carbon::createFromFormat('Y-m-d', $selectedDate, 'Asia/Jakarta')->endOfDay()->utc();
         $selectedClassIds = collect($request->input('class_ids', []))
             ->filter()
             ->map(fn($id) => (int) $id)
@@ -23,7 +26,7 @@ class CatatController extends Controller
         $recordsQuery = DetailClass::query()
             ->with(['student.class', 'class'])
             ->whereNotNull('StudentId')
-            ->whereDate('updated_at', $selectedDate)
+            ->whereBetween('updated_at', [$startUtc, $endUtc])
             ->when(
                 ! empty($selectedClassIds),
                 fn($q) => $q->whereIn('ClassId', $selectedClassIds)
@@ -52,7 +55,7 @@ class CatatController extends Controller
         $classSummary = DetailClass::query()
             ->selectRaw('ClassId, COUNT(*) as students_count, MAX(updated_at) as last_put_at')
             ->whereNotNull('StudentId')
-            ->whereDate('updated_at', $selectedDate)
+            ->whereBetween('updated_at', [$startUtc, $endUtc])
             ->when(
                 ! empty($selectedClassIds),
                 fn($q) => $q->whereIn('ClassId', $selectedClassIds)
@@ -76,7 +79,9 @@ class CatatController extends Controller
 
     public function print(Request $request)
     {
-        $selectedDate = $request->input('date', now()->toDateString());
+        $selectedDate = $request->input('date', now('Asia/Jakarta')->toDateString());
+        $startUtc = Carbon::createFromFormat('Y-m-d', $selectedDate, 'Asia/Jakarta')->startOfDay()->utc();
+        $endUtc = Carbon::createFromFormat('Y-m-d', $selectedDate, 'Asia/Jakarta')->endOfDay()->utc();
         $selectedClassIds = collect($request->input('class_ids', []))
             ->filter()
             ->map(fn($id) => (int) $id)
@@ -88,7 +93,7 @@ class CatatController extends Controller
         $recordsQuery = DetailClass::query()
             ->with(['student.class', 'class'])
             ->whereNotNull('StudentId')
-            ->whereDate('updated_at', $selectedDate)
+            ->whereBetween('updated_at', [$startUtc, $endUtc])
             ->when(
                 ! empty($selectedClassIds),
                 fn($q) => $q->whereIn('ClassId', $selectedClassIds)

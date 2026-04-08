@@ -83,7 +83,7 @@
 					<thead class="bg-gray-50">
 						<tr>
 							<th class="text-left px-5 py-2.5 text-xs font-semibold text-gray-500 uppercase">Kelas</th>
-							<th class="text-left px-5 py-2.5 text-xs font-semibold text-gray-500 uppercase">Siswa Menitip</th>
+							<th class="text-left px-5 py-2.5 text-xs font-semibold text-gray-500 uppercase">Siswa Mengumpulkan</th>
 							<th class="text-left px-5 py-2.5 text-xs font-semibold text-gray-500 uppercase">Waktu Terakhir Menaruh</th>
 						</tr>
 					</thead>
@@ -92,7 +92,7 @@
 							<tr>
 								<td class="px-5 py-3 text-[#1a2e5a] font-medium">{{ $summary->class->ClassName ?? 'Tanpa Kelas' }}</td>
 								<td class="px-5 py-3 text-gray-700">{{ $summary->students_count }}</td>
-								<td class="px-5 py-3 text-gray-700">{{ $summary->last_put_at ? \Illuminate\Support\Carbon::parse($summary->last_put_at)->format('H:i') : '-' }}</td>
+								<td class="px-5 py-3 text-gray-700">{{ $summary->last_put_at ? \Illuminate\Support\Carbon::parse($summary->last_put_at)->timezone('Asia/Jakarta')->format('H:i') : '-' }} WIB</td>
 							</tr>
 						@empty
 							<tr>
@@ -131,7 +131,7 @@
 										<tr>
 											<td class="px-4 py-2.5 text-gray-700">#{{ $record->Slot }}</td>
 											<td class="px-4 py-2.5 text-[#1a2e5a] font-medium">{{ $record->student->FullName ?? '-' }}</td>
-											<td class="px-4 py-2.5 text-gray-700">{{ optional($record->updated_at)->format('H:i') ?? '-' }}</td>
+											<td class="px-4 py-2.5 text-gray-700">{{ optional($record->updated_at)?->timezone('Asia/Jakarta')->format('H:i') ?? '-' }} WIB</td>
 										</tr>
 									@endforeach
 								</tbody>

@@ -23,11 +23,11 @@
     </style>
     @stack('styles')
 </head>
-<body class="bg-gray-100 min-h-screen">
+<body class="bg-gray-100 h-screen overflow-hidden">
 
-<div class="flex min-h-screen">
+<div class="h-screen">
     {{-- ── Sidebar ── --}}
-    <aside class="w-48 bg-[#243b83] flex flex-col shrink-0">
+    <aside class="fixed inset-y-0 left-0 w-48 bg-[#243b83] flex flex-col z-30">
 
         {{-- Nav --}}
         <nav class="flex-1 pt-8 space-y-1">
@@ -75,7 +75,7 @@
     </aside>
 
     {{-- ── Main Content ── --}}
-    <div class="flex-1 flex flex-col overflow-hidden">
+    <div class="ml-48 h-screen flex flex-col overflow-hidden">
         {{-- Top Bar --}}
         <header class="bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between shadow-sm">
             <h1 class="text-sm font-semibold text-gray-700">@yield('page-title', 'Dashboard')</h1>

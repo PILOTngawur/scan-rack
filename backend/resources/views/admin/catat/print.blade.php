@@ -101,7 +101,7 @@
                         <td class="text-center">{{ $index + 1 }}</td>
                         <td>#{{ $record->Slot }}</td>
                         <td>{{ $record->student->FullName ?? '-' }}</td>
-                        <td>{{ optional($record->updated_at)->format('H:i') ?? '-' }}</td>
+                        <td>{{ optional($record->updated_at)?->timezone('Asia/Jakarta')->format('H:i') ?? '-' }} WIB</td>
                     </tr>
                 @endforeach
             </tbody>

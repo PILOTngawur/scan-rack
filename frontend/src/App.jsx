@@ -174,13 +174,53 @@ function App() {
   }
 
   return (
-    <main className="min-h-screen bg-gray-900 py-6 px-4 text-gray-900">
+  <main className="relative min-h-screen bg-gradient-to-b from-cyan-300 to-slate-600 py-6 px-4 text-gray-900">
+      {(view === VIEW.DASHBOARD || view === VIEW.SCAN) && (
+        <button
+          type="button"
+          onClick={onLogout}
+          className="absolute right-4 top-4 z-20 flex h-10 w-10 items-center justify-center rounded-full bg-slate-900 text-white shadow-lg shadow-black/30 transition hover:bg-slate-800"
+          title="Logout"
+          aria-label="Logout"
+        >
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            aria-hidden="true"
+          >
+            <path
+              d="M9 6V5C9 3.9 9.9 3 11 3H18C19.1 3 20 3.9 20 5V19C20 20.1 19.1 21 18 21H11C9.9 21 9 20.1 9 19V18"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+            <path
+              d="M14 12H4"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+            <path
+              d="M7 9L4 12L7 15"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </button>
+      )}
+
       <div className="mx-auto w-full max-w-md rounded-xl bg-slate-100 shadow-2xl shadow-cyan-900/30">
         <div className="rounded-t-xl bg-gradient-to-r from-cyan-300 to-cyan-200 p-4">
           <h1 className="text-center text-2xl font-bold uppercase tracking-wide">
             {view === VIEW.LOGIN && 'Login'}
             {view === VIEW.REGISTER && 'Register'}
-            {view === VIEW.DASHBOARD && 'Dashboard'}
             {view === VIEW.SCAN && 'Scan QR'}
           </h1>
         </div>
@@ -218,7 +258,6 @@ function App() {
                 setNotice('')
                 setView(VIEW.SCAN)
               }}
-              onLogout={onLogout}
               onCheckout={onCheckout}
             />
           )}
