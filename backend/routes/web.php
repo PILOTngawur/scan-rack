@@ -5,6 +5,7 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\RakController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\CatatController;
 
 // ─── Auth ────────────────────────────────────────────────────────────────────
 Route::middleware('guest')->group(function () {
@@ -41,6 +42,10 @@ Route::prefix('admin')
         Route::get('/user/nis/create', [UserController::class, 'createNis'])->name('user.create-nis');
         Route::post('/user/nis', [UserController::class, 'storeNis'])->name('user.store-nis');
         Route::delete('/user/nis/{masterStudent}', [UserController::class, 'destroyNis'])->name('user.destroy-nis');
+
+        // Catat pengumpulan HP
+        Route::get('/catat', [CatatController::class, 'index'])->name('catat.index');
+        Route::get('/catat/print', [CatatController::class, 'print'])->name('catat.print');
     });
 
 // Redirect root to login
