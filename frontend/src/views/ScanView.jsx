@@ -13,69 +13,116 @@ function ScanView({
 }) {
   const [qrCode, setQrCode] = useState('')
   const [rack, setRack] = useState(null)
+  const [cameraActive, setCameraActive] = useState(false)
+  const [cameraError, setCameraError] = useState('')
+  const [scanAutoSupported, setScanAutoSupported] = useState(true)
   const videoRef = useRef(null)
   const streamRef = useRef(null)
+  const rafRef = useRef(null)
 
   const stopCamera = () => {
+    if (rafRef.current) {
+      cancelAnimationFrame(rafRef.current)
+      rafRef.current = null
+    }
+
     if (streamRef.current) {
       streamRef.current.getTracks().forEach((track) => track.stop())
       streamRef.current = null
     }
+
+    setCameraActive(false)
   }
 
-  useEffect(() => {
-    let cancelled = false
+  const getCameraErrorMessage = (error) => {
+    if (!error || !error.name) {
+      return 'Kamera tidak dapat dibuka. Silakan coba lagi.'
+    }
 
-    const startScanner = async () => {
+    if (error.name === 'NotAllowedError') {
+      return 'Izin kamera ditolak. Mohon izinkan akses kamera di browser lalu tekan Aktifkan Kamera.'
+    }
+
+    if (error.name === 'NotFoundError') {
+      return 'Kamera tidak ditemukan pada perangkat ini.'
+    }
+
+    if (error.name === 'NotReadableError') {
+      return 'Kamera sedang dipakai aplikasi lain. Tutup aplikasi lain lalu coba lagi.'
+    }
+
+    if (error.name === 'SecurityError') {
+      return 'Akses kamera butuh koneksi aman (HTTPS/localhost).'
+    }
+
+    return 'Kamera tidak dapat dibuka. Silakan coba lagi.'
+  }
+
+  const startScanner = async () => {
+    if (!navigator?.mediaDevices?.getUserMedia) {
+      setCameraError('Browser tidak mendukung akses kamera. Gunakan input manual QR Code.')
+      setNotice('Browser tidak mendukung akses kamera. Gunakan input manual QR Code.')
+      return
+    }
+
+    stopCamera()
+    setCameraError('')
+
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: 'environment' },
+        audio: false,
+      })
+
+      streamRef.current = stream
+
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream
+      }
+
+      setCameraActive(true)
+
       if (!('BarcodeDetector' in window)) {
+        setScanAutoSupported(false)
+        setNotice('Kamera aktif. Browser belum mendukung scan QR otomatis, gunakan input manual jika perlu.')
         return
       }
 
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: 'environment' },
-          audio: false,
-        })
+      setScanAutoSupported(true)
 
-        if (cancelled) {
-          stream.getTracks().forEach((track) => track.stop())
-          return
-        }
+      const detector = new window.BarcodeDetector({ formats: ['qr_code'] })
 
-        streamRef.current = stream
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream
-        }
+      const detectLoop = async () => {
+        if (!videoRef.current || !streamRef.current) return
 
-        const detector = new window.BarcodeDetector({ formats: ['qr_code'] })
-
-        const detectLoop = async () => {
-          if (cancelled || !videoRef.current) return
-
-          try {
-            const barcodes = await detector.detect(videoRef.current)
-            if (barcodes.length > 0 && barcodes[0]?.rawValue) {
-              setQrCode(extractQrCode(barcodes[0].rawValue))
-              stopCamera()
-              return
-            }
-          } catch {
-            // ignore scanner frame error
+        try {
+          const barcodes = await detector.detect(videoRef.current)
+          if (barcodes.length > 0 && barcodes[0]?.rawValue) {
+            setQrCode(extractQrCode(barcodes[0].rawValue))
+            setNotice('QR berhasil dibaca dari kamera.')
+            stopCamera()
+            return
           }
-
-          requestAnimationFrame(detectLoop)
+        } catch {
+          // ignore per-frame detection errors
         }
 
-        requestAnimationFrame(detectLoop)
-      } catch {
-        setNotice('Kamera tidak bisa diakses. Gunakan input manual.')
+        rafRef.current = requestAnimationFrame(detectLoop)
       }
-    }
 
+      rafRef.current = requestAnimationFrame(detectLoop)
+    } catch (error) {
+      const message = getCameraErrorMessage(error)
+      setCameraError(message)
+      setNotice(message)
+      stopCamera()
+    }
+  }
+
+  useEffect(() => {
     startScanner()
 
     return () => {
-      cancelled = true
       stopCamera()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -158,6 +205,37 @@ function ScanView({
         muted
         playsInline
       />
+
+      {!!cameraError && (
+        <p className="rounded-lg border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-700">
+          {cameraError}
+        </p>
+      )}
+
+      {!scanAutoSupported && (
+        <p className="rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-800">
+          Scan otomatis belum didukung di browser ini. Tetap bisa pakai input manual.
+        </p>
+      )}
+
+      <div className="grid grid-cols-2 gap-2">
+        <button
+          type="button"
+          onClick={startScanner}
+          disabled={loading}
+          className="rounded-xl bg-cyan-500 py-3 text-sm font-bold text-white disabled:opacity-60"
+        >
+          {cameraActive ? 'Aktifkan Ulang Kamera' : 'Aktifkan Kamera'}
+        </button>
+        <button
+          type="button"
+          onClick={stopCamera}
+          disabled={loading || !cameraActive}
+          className="rounded-xl bg-slate-500 py-3 text-sm font-bold text-white disabled:opacity-60"
+        >
+          Matikan Kamera
+        </button>
+      </div>
 
       <InputField
         placeholder="Isi/manual QR Code"

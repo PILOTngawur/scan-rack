@@ -38,7 +38,7 @@ class RakApiController extends Controller
 
     public function scanQr(Request $request, string $qrCode): JsonResponse
     {
-        $student = $request->attributes->get('api_user');
+        $student = $request->user();
 
         if (! $student instanceof User) {
             return response()->json([

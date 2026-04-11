@@ -12,7 +12,7 @@ Route::get('/master-students/by-nis/{nis}', [AuthController::class, 'masterStude
 Route::get('/classes', [RakApiController::class, 'classes']);
 
 // ─── Protected ───────────────────────────────────────────────────────────────
-Route::middleware('api.token')->group(function () {
+Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/me', [AuthController::class, 'me']);
     Route::patch('/me/device-name', [AuthController::class, 'updateDeviceName']);

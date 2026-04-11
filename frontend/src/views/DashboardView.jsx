@@ -9,7 +9,6 @@ function DashboardView({
   isCheckedIn,
   onScan,
   onCheckout,
-  onLogout,
 }) {
   const [editing, setEditing] = useState(false)
   const [draftDeviceName, setDraftDeviceName] = useState(deviceName || '')
@@ -82,7 +81,25 @@ function DashboardView({
         onClick={onScan}
         className="w-full rounded-xl border-2 border-cyan-400 bg-white py-4 text-2xl font-bold"
       >
-        Scan QR
+        <span className="flex items-center justify-center gap-3">
+          <svg
+            width="34"
+            height="34"
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            className="text-gray-800"
+            aria-hidden="true"
+          >
+            <path
+              d="M3 8.5C3 7.12 4.12 6 5.5 6H8L9.2 4.4C9.58 3.9 10.17 3.6 10.8 3.6H13.2C13.83 3.6 14.42 3.9 14.8 4.4L16 6H18.5C19.88 6 21 7.12 21 8.5V17.5C21 18.88 19.88 20 18.5 20H5.5C4.12 20 3 18.88 3 17.5V8.5Z"
+              stroke="currentColor"
+              strokeWidth="1.8"
+            />
+            <circle cx="12" cy="13" r="4" stroke="currentColor" strokeWidth="1.8" />
+          </svg>
+          <span>Scan QR</span>
+        </span>
       </button>
 
       {isCheckedIn && (
@@ -95,14 +112,6 @@ function DashboardView({
           {loading ? 'Memproses...' : 'Ambil Handphone'}
         </button>
       )}
-
-      <button
-        type="button"
-        onClick={onLogout}
-        className="w-full rounded-xl bg-gray-800 py-3 text-sm font-semibold text-white"
-      >
-        Logout
-      </button>
     </section>
   )
 }
