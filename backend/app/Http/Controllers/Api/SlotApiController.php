@@ -111,7 +111,7 @@ class SlotApiController extends Controller
 
     private function resolveCurrentStudent(Request $request): ?User
     {
-        $authUser = $request->attributes->get('api_user');
+        $authUser = $request->user();
 
         return $authUser instanceof User ? $authUser : null;
     }

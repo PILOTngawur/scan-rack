@@ -1,5 +1,34 @@
-export const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL?.trim() || 'http://127.0.0.1:8000/api'
+const fallbackHost = typeof window !== 'undefined' ? window.location.hostname : '127.0.0.1'
+
+function resolveApiBaseUrl() {
+  if (import.meta.env.DEV) {
+    return '/api'
+  }
+
+  const envBaseUrl = import.meta.env.VITE_API_BASE_URL?.trim()
+
+  if (!envBaseUrl) {
+    return `http://${fallbackHost}:8000/api`
+  }
+
+  try {
+    const parsed = new URL(envBaseUrl)
+    const envHost = parsed.hostname
+    const isEnvLocalHost = envHost === 'localhost' || envHost === '127.0.0.1'
+    const isCurrentLocalHost = fallbackHost === 'localhost' || fallbackHost === '127.0.0.1'
+
+    if (isEnvLocalHost && !isCurrentLocalHost) {
+      parsed.hostname = fallbackHost
+      return parsed.toString().replace(/\/$/, '')
+    }
+
+    return envBaseUrl
+  } catch {
+    return `http://${fallbackHost}:8000/api`
+  }
+}
+
+export const API_BASE_URL = resolveApiBaseUrl()
 
 export async function callApi(path, { token, method = 'GET', body, headers = {} } = {}) {
   const finalHeaders = {

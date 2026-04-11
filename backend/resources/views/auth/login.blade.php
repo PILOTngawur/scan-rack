@@ -6,21 +6,16 @@
     <title>Login – Phone Collection</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="min-h-screen bg-[#1a2e5a] flex items-center justify-center px-4">
+<body class="min-h-screen bg-gradient-to-b from-cyan-300 to-slate-600 flex items-center justify-center px-4">
 
 <div class="w-full max-w-sm">
     {{-- Card --}}
     <div class="bg-white rounded-2xl shadow-2xl overflow-hidden">
 
         {{-- Header strip --}}
-        <div class="bg-[#1a2e5a] px-8 py-7 text-center">
-            <div class="inline-flex items-center justify-center w-14 h-14 rounded-full bg-white/10 mb-3">
-                <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/>
-                </svg>
-            </div>
-            <h1 class="text-white font-bold text-xl tracking-wide">Phone Collection</h1>
-            <p class="text-white/60 text-xs mt-1">Sistem Pengumpulan Handphone</p>
+        <div class="bg-cyan-700 px-8 py-7 text-center">
+            <h1 class="text-white font-bold text-xl tracking-wide">Coll Phone</h1>
+            <p class="text-white/60 text-xs mt-1">Sistem Pengumpulan Handphone Berbasis Web</p>
         </div>
 
         {{-- Form --}}
@@ -101,7 +96,7 @@
     </div>
 
     <p class="text-center text-white/40 text-xs mt-5">
-        © {{ date('Y') }} Phone Collection System
+        © {{ date('Y') }} Phone Collection System by. ERZZ
     </p>
 </div>
 

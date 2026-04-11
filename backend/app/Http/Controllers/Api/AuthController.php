@@ -8,9 +8,12 @@ use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Laravel\Sanctum\PersonalAccessToken;
 
 class AuthController extends Controller
 {
+    private const DEFAULT_TOKEN_NAME = 'scan-rack-api';
+
     public function masterStudentByNis(string $nis): JsonResponse
     {
         $masterStudent = MasterStudent::query()
@@ -62,10 +65,8 @@ class AuthController extends Controller
             'Role' => 'student',
         ]);
 
-        $token = bin2hex(random_bytes(32));
-        $user->forceFill([
-            'remember_token' => $token,
-        ])->save();
+        $user->tokens()->delete();
+        $token = $user->createToken($this->resolveTokenName($request))->plainTextToken;
 
         return response()->json([
             'message' => 'Registrasi berhasil.',
@@ -95,10 +96,8 @@ class AuthController extends Controller
             ], 403);
         }
 
-        $token = bin2hex(random_bytes(32));
-        $user->forceFill([
-            'remember_token' => $token,
-        ])->save();
+        $user->tokens()->delete();
+        $token = $user->createToken($this->resolveTokenName($request))->plainTextToken;
 
         $user->load('class');
 
@@ -112,13 +111,11 @@ class AuthController extends Controller
     public function logout(Request $request): JsonResponse
     {
         /** @var User|null $user */
-        $user = $request->attributes->get('api_user');
+        $user = $request->user();
 
-        if ($user) {
-            $user->forceFill([
-                'remember_token' => null,
-            ])->save();
-        }
+        /** @var PersonalAccessToken|null $currentToken */
+        $currentToken = $user?->currentAccessToken();
+        $currentToken?->delete();
 
         return response()->json([
             'message' => 'Logout berhasil.',
@@ -128,7 +125,7 @@ class AuthController extends Controller
     public function me(Request $request): JsonResponse
     {
         /** @var User|null $user */
-        $user = $request->attributes->get('api_user');
+        $user = $request->user();
 
         return response()->json([
             'user' => $user?->load('class'),
@@ -142,7 +139,7 @@ class AuthController extends Controller
         ]);
 
         /** @var User|null $user */
-        $user = $request->attributes->get('api_user');
+        $user = $request->user();
 
         if (! $user) {
             return response()->json([
@@ -158,5 +155,20 @@ class AuthController extends Controller
             'message' => 'Tipe handphone berhasil diperbarui.',
             'user' => $user->fresh(['class']),
         ]);
+    }
+
+    private function resolveTokenName(Request $request): string
+    {
+        $deviceName = trim((string) $request->input('device_name', ''));
+
+        if ($deviceName !== '') {
+            return mb_substr($deviceName, 0, 255);
+        }
+
+        $userAgent = trim((string) $request->userAgent());
+
+        return $userAgent !== ''
+            ? mb_substr($userAgent, 0, 255)
+            : self::DEFAULT_TOKEN_NAME;
     }
 }
