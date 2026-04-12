@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+@extends('layouts.sidebar')
 
 @section('title', 'Detail Rak – ' . $rak->RackName)
 @section('page-title', 'Kelola Rak – Detail')
