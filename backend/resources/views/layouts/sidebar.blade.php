@@ -33,7 +33,7 @@
         <nav class="flex-1 pt-8 space-y-1">
             @php
                 // Helper untuk merapikan class sidebar agar tidak terlalu panjang di bawah
-                $baseLinkClass = "flex items-center w-full px-[18px] py-3 text-white/90 text-base font-bold tracking-wide uppercase transition-all duration-200 ease-in-out rounded-r-xl hover:bg-white/10 hover:text-white";
+                $baseLinkClass = "flex items-center w-full px-4.5 py-3 text-white/90 text-base font-bold tracking-wide uppercase transition-all duration-200 ease-in-out rounded-r-xl hover:bg-white/10 hover:text-white";
                 $activeClass = "bg-[#5c9da4] text-white";
             @endphp
 
@@ -63,7 +63,7 @@
             <form method="POST" action="{{ route('logout') }}">
                 @csrf
                 <button type="submit"
-                    class="flex items-center justify-start w-full text-white px-[18px] py-3 transition-colors duration-200 hover:bg-black/15"
+                    class="flex items-center justify-start w-full text-white px-4.5 py-3 transition-colors duration-200 hover:bg-black/15"
                     title="Keluar"
                     aria-label="Keluar">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">

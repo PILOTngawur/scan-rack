@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+@extends('layouts.sidebar')
 
 @section('title', 'Tambah Data NIS')
 @section('page-title', 'Kelola User – Tambah Data NIS')

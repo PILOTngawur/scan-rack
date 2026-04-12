@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+@extends('layouts.sidebar')
 
 @section('title', 'Catat Pengumpulan HP')
 @section('page-title', 'Catat Pengumpulan HP')
