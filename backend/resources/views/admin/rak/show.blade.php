@@ -23,8 +23,11 @@
                     Edit Rak
                 </a>
 
-                <form method="POST" action="{{ route('admin.rak.destroy', $rak) }}"
-                      onsubmit="return confirm('Hapus rak {{ $rak->RackName }}?')">
+            <form method="POST" action="{{ route('admin.rak.destroy', $rak) }}"
+                data-confirm
+                data-confirm-title="Hapus rak {{ $rak->RackName }}?"
+                data-confirm-text="Data rak dan slot terkait akan dihapus."
+                data-confirm-button="Ya, hapus">
                     @csrf
                     @method('DELETE')
                     <button type="submit"

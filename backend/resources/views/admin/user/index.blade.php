@@ -40,8 +40,11 @@
                         <td class="px-5 py-3 text-gray-600">{{ $admin->email }}</td>
                         <td class="px-5 py-3 text-center">
                             @if($admin->id !== auth()->id())
-                                <form method="POST" action="{{ route('admin.user.destroy-admin', $admin) }}"
-                                      onsubmit="return confirm('Hapus pengelola {{ $admin->FullName }}?')">
+                      <form method="POST" action="{{ route('admin.user.destroy-admin', $admin) }}"
+                          data-confirm
+                          data-confirm-title="Hapus pengelola {{ $admin->FullName }}?"
+                          data-confirm-text="Akun pengelola ini akan dihapus permanen."
+                          data-confirm-button="Ya, hapus">
                                     @csrf @method('DELETE')
                                     <button type="submit"
                                         class="text-xs bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-lg transition font-medium">
@@ -125,8 +128,11 @@
                         <td class="px-5 py-3 text-[#1a2e5a] font-medium">{{ $masterStudent->FullName ?? '-' }}</td>
                         <td class="px-5 py-3 text-gray-600">{{ $masterStudent->NIS }}</td>
                         <td class="px-5 py-3 text-center">
-                            <form method="POST" action="{{ route('admin.user.destroy-nis', $masterStudent) }}"
-                                  onsubmit="return confirm('Hapus data NIS {{ $masterStudent->NIS }}?')">
+                    <form method="POST" action="{{ route('admin.user.destroy-nis', $masterStudent) }}"
+                        data-confirm
+                        data-confirm-title="Hapus data NIS {{ $masterStudent->NIS }}?"
+                        data-confirm-text="Data master NIS ini akan dihapus permanen."
+                        data-confirm-button="Ya, hapus">
                                 @csrf @method('DELETE')
                                 <button type="submit"
                                     class="text-xs bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-lg transition font-medium">
@@ -208,8 +214,11 @@
                         <td class="px-5 py-3 text-gray-600">{{ $student->class->ClassName ?? '-' }}</td>
                         <td class="px-5 py-3 text-gray-600">{{ $student->email }}</td>
                         <td class="px-5 py-3 text-center">
-                            <form method="POST" action="{{ route('admin.user.destroy-student', $student) }}"
-                                  onsubmit="return confirm('Hapus siswa {{ $student->FullName }}?')">
+                    <form method="POST" action="{{ route('admin.user.destroy-student', $student) }}"
+                        data-confirm
+                        data-confirm-title="Hapus siswa {{ $student->FullName }}?"
+                        data-confirm-text="Akun siswa ini akan dihapus permanen."
+                        data-confirm-button="Ya, hapus">
                                 @csrf @method('DELETE')
                                 <button type="submit"
                                     class="text-xs bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-lg transition font-medium">

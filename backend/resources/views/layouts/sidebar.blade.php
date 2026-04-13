@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@yield('title', 'Admin') Phone Collection</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -15,7 +16,7 @@
                         cyan: { DEFAULT: '#00d4d4', dark: '#00a8a8' },
                     }
                 }
-            }
+            } 
         }
     </script>
     <style>
@@ -120,5 +121,36 @@
 </div>
 
 @stack('scripts')
+<script>
+    document.addEventListener('submit', function (event) {
+        const form = event.target.closest('form[data-confirm]')
+        if (!form || form.dataset.swalConfirmed === '1') {
+            return
+        }
+
+        event.preventDefault()
+
+        const title = form.dataset.confirmTitle || 'Yakin ingin melanjutkan?'
+        const text = form.dataset.confirmText || ''
+        const confirmText = form.dataset.confirmButton || 'Ya, lanjutkan'
+
+        Swal.fire({
+            title,
+            text,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: confirmText,
+            cancelButtonText: 'Batal',
+            confirmButtonColor: '#dc2626',
+            cancelButtonColor: '#6b7280',
+            reverseButtons: true,
+        }).then((result) => {
+            if (result.isConfirmed) {
+                form.dataset.swalConfirmed = '1'
+                form.submit()
+            }
+        })
+    })
+</script>
 </body>
 </html>

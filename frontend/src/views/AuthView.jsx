@@ -1,6 +1,66 @@
 import { useEffect, useState } from 'react'
 import InputField from '../components/InputField'
 
+function PasswordField({ placeholder, value, onChange }) {
+  const [showPassword, setShowPassword] = useState(false)
+
+  return (
+    <div className="relative">
+      <input
+        className="w-full rounded-xl border border-gray-400 bg-white px-4 py-3 pr-12 text-base shadow-sm focus:border-cyan-500 focus:outline-none"
+        type={showPassword ? 'text' : 'password'}
+        placeholder={placeholder}
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        required
+      />
+
+      <button
+        type="button"
+        onClick={() => setShowPassword((old) => !old)}
+        className="absolute inset-y-0 right-3 flex items-center text-gray-500 hover:text-gray-700"
+        aria-label={showPassword ? 'Sembunyikan password' : 'Tampilkan password'}
+      >
+        {showPassword ? (
+          <svg
+            className="h-5 w-5"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a9.956 9.956 0 012.293-3.95m3.15-2.399A9.956 9.956 0 0112 5c4.478 0 8.268 2.943 9.542 7a9.966 9.966 0 01-4.293 5.225M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+            />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M3 3l18 18"
+            />
+          </svg>
+        ) : (
+          <svg
+            className="h-5 w-5"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            viewBox="0 0 24 24"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+            />
+          </svg>
+        )}
+      </button>
+    </div>
+  )
+}
+
 function LoginView({ loading, onLogin, goRegister }) {
   const [form, setForm] = useState({ email: '', password: '' })
 
@@ -17,9 +77,8 @@ function LoginView({ loading, onLogin, goRegister }) {
         value={form.email}
         onChange={(value) => setForm((old) => ({ ...old, email: value }))}
       />
-      <InputField
+      <PasswordField
         placeholder="Password"
-        type="password"
         value={form.password}
         onChange={(value) => setForm((old) => ({ ...old, password: value }))}
       />
@@ -172,15 +231,13 @@ function RegisterView({ loading, onRegister, goLogin, classes = [], onLookupNis 
         value={form.email}
         onChange={(value) => setForm((old) => ({ ...old, email: value }))}
       />
-      <InputField
+      <PasswordField
         placeholder="Password"
-        type="password"
         value={form.password}
         onChange={(value) => setForm((old) => ({ ...old, password: value }))}
       />
-      <InputField
+      <PasswordField
         placeholder="Konfirmasi Password"
-        type="password"
         value={form.password_confirmation}
         onChange={(value) =>
           setForm((old) => ({ ...old, password_confirmation: value }))
