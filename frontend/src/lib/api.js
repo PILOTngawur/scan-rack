@@ -1,4 +1,5 @@
 const fallbackHost = typeof window !== 'undefined' ? window.location.hostname : '127.0.0.1'
+const fallbackOrigin = typeof window !== 'undefined' ? window.location.origin : 'http://127.0.0.1'
 
 function resolveApiBaseUrl() {
   if (import.meta.env.DEV) {
@@ -8,7 +9,7 @@ function resolveApiBaseUrl() {
   const envBaseUrl = import.meta.env.VITE_API_BASE_URL?.trim()
 
   if (!envBaseUrl) {
-    return `http://${fallbackHost}:8000/api`
+    return `${fallbackOrigin.replace(/\/$/, '')}/api`
   }
 
   try {
@@ -24,7 +25,7 @@ function resolveApiBaseUrl() {
 
     return envBaseUrl
   } catch {
-    return `http://${fallbackHost}:8000/api`
+    return `${fallbackOrigin.replace(/\/$/, '')}/api`
   }
 }
 

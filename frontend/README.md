@@ -19,6 +19,11 @@ Salin `.env.example` menjadi `.env`, lalu isi alamat backend API:
 
 - `VITE_API_BASE_URL=http://127.0.0.1:8000/api`
 
+Untuk production di Vercel (frontend) dengan backend di domain lain (mis. Rumahweb):
+
+- Set environment variable Vercel:
+	- `VITE_API_BASE_URL=https://erzzdev.xyz/api`
+
 ## Jalankan
 
 1. Jalankan backend Laravel terlebih dahulu.
@@ -45,4 +50,5 @@ Endpoint yang dipakai frontend:
 
 - Jika kamera tidak bisa diakses, gunakan input QR manual pada halaman scan.
 - Jika request gagal, cek apakah URL `VITE_API_BASE_URL` sudah benar.
+- Jika frontend di Vercel dan backend beda domain, pastikan backend mengizinkan origin Vercel di CORS.
 - Pastikan data rak + slot sudah tersedia dari admin backend.
