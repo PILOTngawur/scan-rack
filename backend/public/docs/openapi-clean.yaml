@@ -1,0 +1,264 @@
+openapi: 3.0.3
+info:
+  title: Scan Rack API
+  version: 1.0.0
+  description: API dokumentasi untuk aplikasi Scan Rack.
+
+servers:
+  - url: http://127.0.0.1:8000/api
+    description: Local
+  - url: https://erzzdev.xyz/api
+    description: Production
+
+tags:
+  - name: Auth
+  - name: Master Data
+  - name: Rack
+  - name: Slot
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: Token
+
+  schemas:
+    MessageResponse:
+      type: object
+      properties:
+        message:
+          type: string
+
+    ValidationError:
+      type: object
+      properties:
+        message:
+          type: string
+        errors:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+
+paths:
+  /classes:
+    get:
+      tags: [Master Data]
+      summary: Ambil daftar kelas
+      responses:
+        '200':
+          description: OK
+
+  /master-students/by-nis/{nis}:
+    get:
+      tags: [Master Data]
+      summary: Cek master siswa by NIS
+      parameters:
+        - in: path
+          name: nis
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+        '404':
+          description: NIS tidak ditemukan
+
+  /register:
+    post:
+      tags: [Auth]
+      summary: Registrasi akun siswa
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [ClassId, NISNUPTK, email, password, password_confirmation]
+              properties:
+                ClassId:
+                  type: integer
+                NISNUPTK:
+                  type: integer
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                password_confirmation:
+                  type: string
+                device_name:
+                  type: string
+      responses:
+        '201':
+          description: Registrasi berhasil
+        '422':
+          description: Validasi gagal
+
+  /login:
+    post:
+      tags: [Auth]
+      summary: Login siswa
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                device_name:
+                  type: string
+      responses:
+        '200':
+          description: Login berhasil
+        '401':
+          description: Email/password salah
+        '403':
+          description: Bukan akun siswa
+
+  /logout:
+    post:
+      tags: [Auth]
+      summary: Logout user
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Logout berhasil
+
+  /me:
+    get:
+      tags: [Auth]
+      summary: Profil user login
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: OK
+
+  /me/device-name:
+    patch:
+      tags: [Auth]
+      summary: Update device name
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [device_name]
+              properties:
+                device_name:
+                  type: string
+      responses:
+        '200':
+          description: Device name updated
+        '422':
+          description: Validation error
+
+  /rak:
+    get:
+      tags: [Rack]
+      summary: Daftar rak
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: OK
+
+  /rak/{qrCode}/scan:
+    get:
+      tags: [Rack]
+      summary: Scan QR rak
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: qrCode
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+        '403':
+          description: Rak tidak sesuai kelas user
+        '404':
+          description: Rak tidak ditemukan
+
+  /slot/me:
+    get:
+      tags: [Slot]
+      summary: Status slot user saat ini
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: OK
+
+  /slot/checkin:
+    post:
+      tags: [Slot]
+      summary: Check-in slot
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [ClassId, Slot]
+              properties:
+                ClassId:
+                  type: integer
+                Slot:
+                  type: integer
+      responses:
+        '200':
+          description: Check-in berhasil
+        '403':
+          description: Tidak boleh kelas lain
+        '404':
+          description: Slot tidak ditemukan
+        '422':
+          description: Slot terisi / user sudah check-in
+
+  /slot/checkout:
+    post:
+      tags: [Slot]
+      summary: Check-out slot
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [ClassId, Slot]
+              properties:
+                ClassId:
+                  type: integer
+                Slot:
+                  type: integer
+      responses:
+        '200':
+          description: Check-out berhasil
+        '403':
+          description: Slot bukan milik user
+        '404':
+          description: Slot tidak ditemukan
+        '422':
+          description: Validasi gagal

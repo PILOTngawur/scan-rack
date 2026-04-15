@@ -1,0 +1,567 @@
+openapi: 3.0.3
+info:
+	title: Scan Rack API
+	version: 1.0.0
+	description: |
+		Dokumentasi API untuk aplikasi Scan Rack (siswa).
+		Endpoint protected menggunakan **Bearer Token** dari Laravel Sanctum personal access token.
+
+servers:
+	- url: http://localhost:8000/api
+		description: Local
+	- url: https://erzzdev.xyz/api
+		description: Production (Rumahweb)
+
+tags:
+	- name: Auth
+	- name: Master Data
+	- name: Rack
+	- name: Slot
+
+components:
+	securitySchemes:
+		bearerAuth:
+			type: http
+			scheme: bearer
+			bearerFormat: Token
+
+	schemas:
+		Class:
+			type: object
+			properties:
+				id:
+					type: integer
+					example: 1
+				ClassName:
+					type: string
+					example: X-RPL-1
+				RackName:
+					type: string
+					nullable: true
+					example: Rak A
+				RackSlot:
+					type: integer
+					nullable: true
+					example: 24
+				SlotTotal:
+					type: integer
+					nullable: true
+					example: 24
+				QrCode:
+					type: string
+					nullable: true
+					example: RAK-X-RPL-1
+				used_slots:
+					type: integer
+					nullable: true
+					example: 10
+				empty_slots:
+					type: integer
+					nullable: true
+					example: 14
+
+		User:
+			type: object
+			properties:
+				id:
+					type: integer
+					example: 12
+				FullName:
+					type: string
+					example: Budi Santoso
+				NISNUPTK:
+					type: integer
+					example: 12345678
+				email:
+					type: string
+					format: email
+					example: budi@mail.com
+				Role:
+					type: string
+					example: student
+				DeviceName:
+					type: string
+					nullable: true
+					example: Android | Chrome
+				ClassId:
+					type: integer
+					example: 1
+				class:
+					$ref: '#/components/schemas/Class'
+
+		MasterStudentByNis:
+			type: object
+			properties:
+				NIS:
+					type: integer
+					example: 12345678
+				FullName:
+					type: string
+					example: Budi Santoso
+
+		DetailClass:
+			type: object
+			properties:
+				id:
+					type: integer
+					example: 1
+				Slot:
+					type: integer
+					example: 5
+				StudentId:
+					type: integer
+					nullable: true
+					example: 12
+				ClassId:
+					type: integer
+					example: 1
+				class:
+					$ref: '#/components/schemas/Class'
+				student:
+					$ref: '#/components/schemas/User'
+
+		MessageResponse:
+			type: object
+			properties:
+				message:
+					type: string
+					example: Operasi berhasil.
+
+		ValidationError:
+			type: object
+			properties:
+				message:
+					type: string
+					example: The given data was invalid.
+				errors:
+					type: object
+					additionalProperties:
+						type: array
+						items:
+							type: string
+
+paths:
+	/classes:
+		get:
+			tags: [Master Data]
+			summary: Ambil daftar kelas
+			responses:
+				'200':
+					description: Daftar kelas
+					content:
+						application/json:
+							schema:
+								type: object
+								properties:
+									data:
+										type: array
+										items:
+											$ref: '#/components/schemas/Class'
+
+	/master-students/by-nis/{nis}:
+		get:
+			tags: [Master Data]
+			summary: Cek data master siswa berdasarkan NIS
+			parameters:
+				- in: path
+					name: nis
+					required: true
+					schema:
+						type: string
+					example: '12345678'
+			responses:
+				'200':
+					description: Data siswa ditemukan
+					content:
+						application/json:
+							schema:
+								type: object
+								properties:
+									data:
+										$ref: '#/components/schemas/MasterStudentByNis'
+				'404':
+					description: NIS tidak ditemukan
+					content:
+						application/json:
+							schema:
+								$ref: '#/components/schemas/MessageResponse'
+
+	/register:
+		post:
+			tags: [Auth]
+			summary: Registrasi akun siswa
+			requestBody:
+				required: true
+				content:
+					application/json:
+						schema:
+							type: object
+							required: [ClassId, NISNUPTK, email, password, password_confirmation]
+							properties:
+								ClassId:
+									type: integer
+									example: 1
+								NISNUPTK:
+									type: integer
+									example: 12345678
+								email:
+									type: string
+									format: email
+									example: budi@mail.com
+								password:
+									type: string
+									minLength: 6
+									example: secret123
+								password_confirmation:
+									type: string
+									example: secret123
+								device_name:
+									type: string
+									example: Android | Chrome Mobile
+			responses:
+				'201':
+					description: Registrasi berhasil
+					content:
+						application/json:
+							schema:
+								type: object
+								properties:
+									message:
+										type: string
+										example: Registrasi berhasil.
+									token:
+										type: string
+										example: 12|sometoken...
+									user:
+										$ref: '#/components/schemas/User'
+				'422':
+					description: Validasi gagal
+					content:
+						application/json:
+							schema:
+								$ref: '#/components/schemas/ValidationError'
+
+	/login:
+		post:
+			tags: [Auth]
+			summary: Login siswa
+			requestBody:
+				required: true
+				content:
+					application/json:
+						schema:
+							type: object
+							required: [email, password]
+							properties:
+								email:
+									type: string
+									format: email
+									example: budi@mail.com
+								password:
+									type: string
+									example: secret123
+								device_name:
+									type: string
+									example: Android | Chrome Mobile
+			responses:
+				'200':
+					description: Login berhasil
+					content:
+						application/json:
+							schema:
+								type: object
+								properties:
+									message:
+										type: string
+										example: Login berhasil.
+									token:
+										type: string
+										example: 12|sometoken...
+									user:
+										$ref: '#/components/schemas/User'
+				'401':
+					description: Email/password salah
+					content:
+						application/json:
+							schema:
+								$ref: '#/components/schemas/MessageResponse'
+				'403':
+					description: Bukan akun siswa
+					content:
+						application/json:
+							schema:
+								$ref: '#/components/schemas/MessageResponse'
+
+	/logout:
+		post:
+			tags: [Auth]
+			summary: Logout dan revoke token saat ini
+			security:
+				- bearerAuth: []
+			responses:
+				'200':
+					description: Logout berhasil
+					content:
+						application/json:
+							schema:
+								$ref: '#/components/schemas/MessageResponse'
+				'401':
+					description: Unauthorized
+					content:
+						application/json:
+							schema:
+								$ref: '#/components/schemas/MessageResponse'
+
+	/me:
+		get:
+			tags: [Auth]
+			summary: Ambil profil user login
+			security:
+				- bearerAuth: []
+			responses:
+				'200':
+					description: Profil user
+					content:
+						application/json:
+							schema:
+								type: object
+								properties:
+									user:
+										$ref: '#/components/schemas/User'
+
+	/me/device-name:
+		patch:
+			tags: [Auth]
+			summary: Update nama/perangkat user
+			security:
+				- bearerAuth: []
+			requestBody:
+				required: true
+				content:
+					application/json:
+						schema:
+							type: object
+							required: [device_name]
+							properties:
+								device_name:
+									type: string
+									maxLength: 255
+									example: iPhone 14 | Safari
+			responses:
+				'200':
+					description: Device name berhasil diupdate
+					content:
+						application/json:
+							schema:
+								type: object
+								properties:
+									message:
+										type: string
+										example: Tipe handphone berhasil diperbarui.
+									user:
+										$ref: '#/components/schemas/User'
+				'401':
+					description: Unauthorized
+					content:
+						application/json:
+							schema:
+								$ref: '#/components/schemas/MessageResponse'
+				'422':
+					description: Validasi gagal
+					content:
+						application/json:
+							schema:
+								$ref: '#/components/schemas/ValidationError'
+
+	/rak:
+		get:
+			tags: [Rack]
+			summary: Ambil list rak per kelas + summary slot
+			security:
+				- bearerAuth: []
+			responses:
+				'200':
+					description: Daftar rak
+					content:
+						application/json:
+							schema:
+								type: object
+								properties:
+									data:
+										type: array
+										items:
+											$ref: '#/components/schemas/Class'
+
+	/rak/{qrCode}/scan:
+		get:
+			tags: [Rack]
+			summary: Scan QR rak dan ambil detail slot
+			security:
+				- bearerAuth: []
+			parameters:
+				- in: path
+					name: qrCode
+					required: true
+					schema:
+						type: string
+					example: RAK-X-RPL-1
+			responses:
+				'200':
+					description: Detail rak
+					content:
+						application/json:
+							schema:
+								type: object
+								properties:
+									data:
+										allOf:
+											- $ref: '#/components/schemas/Class'
+											- type: object
+												properties:
+													detailClasses:
+														type: array
+														items:
+															$ref: '#/components/schemas/DetailClass'
+				'403':
+					description: Rak tidak sesuai kelas user
+					content:
+						application/json:
+							schema:
+								$ref: '#/components/schemas/MessageResponse'
+				'404':
+					description: Rak tidak ditemukan
+					content:
+						application/json:
+							schema:
+								$ref: '#/components/schemas/MessageResponse'
+
+	/slot/me:
+		get:
+			tags: [Slot]
+			summary: Cek status check-in user saat ini
+			security:
+				- bearerAuth: []
+			responses:
+				'200':
+					description: Status slot user
+					content:
+						application/json:
+							schema:
+								type: object
+								properties:
+									status:
+										type: string
+										enum: [checked_in, not_checked_in]
+										example: checked_in
+									data:
+															nullable: true
+															allOf:
+																- $ref: '#/components/schemas/DetailClass'
+
+	/slot/checkin:
+		post:
+			tags: [Slot]
+			summary: Check-in slot rak
+			security:
+				- bearerAuth: []
+			requestBody:
+				required: true
+				content:
+					application/json:
+						schema:
+							type: object
+							required: [ClassId, Slot]
+							properties:
+								ClassId:
+									type: integer
+									example: 1
+								Slot:
+									type: integer
+									minimum: 1
+									example: 5
+			responses:
+				'200':
+					description: Check-in berhasil
+					content:
+						application/json:
+							schema:
+								type: object
+								properties:
+									message:
+										type: string
+										example: Check-in berhasil.
+									data:
+										$ref: '#/components/schemas/DetailClass'
+				'403':
+					description: Tidak boleh check-in kelas lain
+					content:
+						application/json:
+							schema:
+								$ref: '#/components/schemas/MessageResponse'
+				'404':
+					description: Slot tidak ditemukan
+					content:
+						application/json:
+							schema:
+								$ref: '#/components/schemas/MessageResponse'
+				'422':
+					description: Slot terisi / user sudah check-in / validasi gagal
+					content:
+						application/json:
+							schema:
+								oneOf:
+									- $ref: '#/components/schemas/MessageResponse'
+									- $ref: '#/components/schemas/ValidationError'
+
+	/slot/checkout:
+		post:
+			tags: [Slot]
+			summary: Check-out slot rak
+			security:
+				- bearerAuth: []
+			requestBody:
+				required: true
+				content:
+					application/json:
+						schema:
+							type: object
+							required: [ClassId, Slot]
+							properties:
+								ClassId:
+									type: integer
+									example: 1
+								Slot:
+									type: integer
+									minimum: 1
+									example: 5
+			responses:
+				'200':
+					description: Check-out berhasil
+					content:
+						application/json:
+							schema:
+								type: object
+								properties:
+									message:
+										type: string
+										example: Check-out berhasil.
+									data:
+										$ref: '#/components/schemas/DetailClass'
+				'403':
+					description: Slot bukan milik user
+					content:
+						application/json:
+							schema:
+								$ref: '#/components/schemas/MessageResponse'
+				'404':
+					description: Slot tidak ditemukan
+					content:
+						application/json:
+							schema:
+								$ref: '#/components/schemas/MessageResponse'
+				'422':
+					description: Validasi gagal
+					content:
+						application/json:
+							schema:
+								$ref: '#/components/schemas/ValidationError'

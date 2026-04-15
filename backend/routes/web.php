@@ -17,6 +17,9 @@ Route::post('/logout', [LoginController::class, 'logout'])
     ->middleware('auth')
     ->name('logout');
 
+// API Documentation (Swagger UI)
+Route::view('/api-docs', 'docs.swagger')->name('api.docs');
+
 // ─── Admin ───────────────────────────────────────────────────────────────────
 Route::prefix('admin')
     ->middleware(['auth', 'admin'])
